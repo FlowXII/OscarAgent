@@ -30,7 +30,7 @@ export function AdminDebugPage() {
   const [anthropicKey, setAnthropicKey] = useState('')
   const [openaiKey, setOpenaiKey] = useState('')
   const [minimaxKey, setMinimaxKey] = useState('')
-  const [aiModel, setAiModel] = useState('minimax/abab6.5s-chat')
+  const [aiModel, setAiModel] = useState('MiniMax-M2.5')
   const [showDebug, setShowDebug] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
@@ -176,6 +176,37 @@ export function AdminDebugPage() {
         </div>
 
         <div className="space-y-4">
+          {/* AI Model Selector */}
+          <div>
+            <label className="block text-xs text-lux-text-muted uppercase tracking-widest mb-2">
+              Modèle AI
+            </label>
+            <select
+              value={aiModel}
+              onChange={(e) => setAiModel(e.target.value)}
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
+            >
+              <optgroup label="Minimax (Économique)">
+                <option value="MiniMax-M2.5">MiniMax M2.5 (Recommandé)</option>
+                <option value="MiniMax-M2.5-highspeed">MiniMax M2.5 High Speed</option>
+                <option value="MiniMax-M2.1">MiniMax M2.1</option>
+              </optgroup>
+              <optgroup label="Anthropic (Claude)">
+                <option value="anthropic/claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
+                <option value="anthropic/claude-3-5-haiku-20241022">Claude 3.5 Haiku</option>
+                <option value="anthropic/claude-opus-4-6">Claude Opus 4 (Cher)</option>
+              </optgroup>
+              <optgroup label="OpenAI (GPT)">
+                <option value="openai/gpt-4o">GPT-4o</option>
+                <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                <option value="openai/gpt-4-turbo">GPT-4 Turbo</option>
+              </optgroup>
+            </select>
+            <p className="text-xs text-lux-text-muted mt-2">
+              Minimax recommandé pour économiser. Claude 3.5 Sonnet pour la qualité.
+            </p>
+          </div>
+
           <div>
             <label className="block text-xs text-lux-text-muted uppercase tracking-widest mb-2">
               Anthropic API Key (Claude)
