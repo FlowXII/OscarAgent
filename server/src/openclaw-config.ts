@@ -96,6 +96,17 @@ export class OpenClawConfigService {
     if (agent.config?.envVars) {
       const configVars = agent.config.envVars as Record<string, string>;
       Object.assign(envVars, configVars);
+
+      // Mapping for OpenClaw specific model selection
+      if (configVars.OPENCLAW_MODEL) {
+        envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL'] = configVars.OPENCLAW_MODEL;
+        envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL_PRIMARY'] = configVars.OPENCLAW_MODEL;
+      }
+
+      // Auto-enable Minimax plugin if key is present
+      if (configVars.MINIMAX_API_KEY) {
+        envVars['OPENCLAW_PLUGINS_ENTRIES_MINIMAX_ENABLED'] = 'true';
+      }
     }
 
     return envVars;
