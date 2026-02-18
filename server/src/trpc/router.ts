@@ -167,7 +167,7 @@ export const adminRouter = createTRPCRouter({
 
   updateAgentEnv: protectedProcedure
     .input(z.object({
-      envVars: z.record(z.string())
+      envVars: z.record(z.string(), z.string())
     }))
     .mutation(async ({ ctx, input }) => {
       const agent = await ctx.prisma.agent.findUnique({
