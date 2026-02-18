@@ -8,6 +8,11 @@ import path from 'path';
  */
 
 interface OpenClawConfig {
+  agents?: {
+    defaults?: {
+      model?: string;
+    };
+  };
   skills?: {
     entries?: Array<{
       name: string;
@@ -39,6 +44,12 @@ export class OpenClawConfigService {
     }
 
     const config: OpenClawConfig = {
+      agents: {
+        defaults: {
+          // Use environment variable substitution so we can control this via env vars
+          model: "${OPENCLAW_MODEL}",
+        },
+      },
       skills: {
         entries: agent.skills.map((agentSkill) => ({
           name: agentSkill.skill.slug,

@@ -2,6 +2,7 @@ import Docker from 'dockerode'
 import { prisma } from './db.js'
 import { AgentStatus } from '@prisma/client'
 import { OpenClawConfigService } from './openclaw-config.js'
+import path from 'path'
 
 const BASE_PORT = 18789
 const IMAGE = 'alpine/openclaw'
@@ -64,6 +65,11 @@ export async function createAgent(userId: string): Promise<string> {
     // Merge both: user config takes precedence over skills
     const allEnvVars = { ...skillsEnv, ...userEnvVars };
     
+    // Generate and write config file
+    const config = await OpenClawConfigService.generateConfigForAgent(agent.id)
+    await OpenClawConfigService.writeConfigToVolume(agent.id, config)
+    const configPath = path.join(process.cwd(), '.openclaw-configs', `${agent.id}.json`)
+    
     const container = await d.createContainer({
       Image: IMAGE,
       name: `oscaragent-agent-${agent.id}`,
@@ -73,7 +79,11 @@ export async function createAgent(userId: string): Promise<string> {
         PortBindings: {
           '18789/tcp': [{ HostPort: String(port) }],
         },
-        Binds: [`oscaragent-openclaw-${agent.id}:/root/.openclaw`],
+        Binds: [
+          `oscaragent-openclaw-${agent.id}:/root/.openclaw`,
+          // Mount the generated config file to overwrite the default
+          `${configPath}:/root/.openclaw/openclaw.json`
+        ],
         RestartPolicy: { Name: 'unless-stopped' },
         // Resource limits for multi-tenancy
         Memory: 2 * 1024 * 1024 * 1024, // 2GB
@@ -157,8 +167,13 @@ export async function startAgent(agentId: string): Promise<void> {
   });
   const userEnvVars = (agentConfig?.envVars as Record<string, string>) || {};
   
-  // Merge both: user config takes precedence over skills
+  // Join user config and skills env vars
   const allEnvVars = { ...skillsEnv, ...userEnvVars };
+
+  // Generate and write config file
+  const config = await OpenClawConfigService.generateConfigForAgent(agentId)
+  await OpenClawConfigService.writeConfigToVolume(agentId, config)
+  const configPath = path.join(process.cwd(), '.openclaw-configs', `${agentId}.json`)
   
   const container = await d.createContainer({
     Image: IMAGE,
@@ -169,7 +184,11 @@ export async function startAgent(agentId: string): Promise<void> {
       PortBindings: {
         '18789/tcp': [{ HostPort: String(port) }],
       },
-      Binds: [`oscaragent-openclaw-${agentId}:/root/.openclaw`],
+      Binds: [
+        `oscaragent-openclaw-${agentId}:/root/.openclaw`,
+        // Mount the generated config file to overwrite the default
+        `${configPath}:/root/.openclaw/openclaw.json`
+      ],
       RestartPolicy: { Name: 'unless-stopped' },
       // Resource limits for multi-tenancy
       Memory: 2 * 1024 * 1024 * 1024, // 2GB
