@@ -179,10 +179,10 @@ export const adminRouter = createTRPCRouter({
         where: { agentId: agent.id },
         create: {
           agentId: agent.id,
-          envVars: input.envVars
+          envVars: input.envVars as any
         },
         update: {
-          envVars: input.envVars
+          envVars: input.envVars as any
         }
       })
 
