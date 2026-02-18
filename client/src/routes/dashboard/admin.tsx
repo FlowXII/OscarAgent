@@ -12,12 +12,13 @@ import {
 } from 'lucide-react'
 
 export const Route = createFileRoute('/dashboard/admin')({
-  component: AdminDebugInterface,
+  component: AdminDebugPage,
 })
 
-function AdminDebugInterface() {
+export function AdminDebugPage() {
   const trpc = useTRPC()
-  const { data: agent } = useQuery(trpc.agents.get.queryOptions())
+  const { data: agent, isLoading: agentLoading, error: agentError } = useQuery(trpc.agents.get.queryOptions())
+  const { data: user } = useQuery(trpc.auth.me.queryOptions())
   const { data: config } = useQuery(trpc.admin.getAgentConfig.queryOptions())
   const { data: logs } = useQuery(trpc.admin.getAgentLogs.queryOptions())
   
@@ -29,6 +30,8 @@ function AdminDebugInterface() {
   const [anthropicKey, setAnthropicKey] = useState('')
   const [openaiKey, setOpenaiKey] = useState('')
   const [minimaxKey, setMinimaxKey] = useState('')
+  const [showDebug, setShowDebug] = useState(true)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
   const handleSaveEnv = () => {
     const envVars: Record<string, string> = {}
@@ -38,7 +41,16 @@ function AdminDebugInterface() {
     if (openaiKey) envVars.OPENAI_API_KEY = openaiKey
     if (minimaxKey) envVars.MINIMAX_API_KEY = minimaxKey
     
-    updateEnv.mutate({ envVars })
+    updateEnv.mutate({ envVars }, {
+      onSuccess: () => {
+        setSaveStatus('success')
+        setTimeout(() => setSaveStatus('idle'), 3000)
+      },
+      onError: () => {
+        setSaveStatus('error')
+        setTimeout(() => setSaveStatus('idle'), 3000)
+      }
+    })
   }
 
   const handleRestart = () => {
@@ -200,6 +212,20 @@ function AdminDebugInterface() {
               className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
             />
           </div>
+
+          {/* Save Feedback */}
+          {saveStatus === 'success' && (
+            <div className="p-4 bg-green-500/10 border border-green-500/30 text-green-400 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+              <span className="text-lg">✓</span>
+              <span>Clés API sauvegardées avec succès ! L'agent utilisera ces clés au prochain redémarrage.</span>
+            </div>
+          )}
+          {saveStatus === 'error' && (
+            <div className="p-4 bg-red-500/10 border border-red-500/30 text-red-400 text-sm flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+              <span className="text-lg">✗</span>
+              <span>Erreur lors de la sauvegarde. Vérifiez que l'agent existe.</span>
+            </div>
+          )}
 
           <p className="text-xs text-lux-text-muted">
             OpenClaw utilisera la première clé disponible. Anthropic recommandé pour Claude 3.5 Sonnet.
