@@ -145,6 +145,7 @@ export async function startAgent(agentId: string): Promise<void> {
     Image: IMAGE,
     name: `oscaragent-agent-${agentId}`,
     Env: Object.entries(skillsEnv).map(([key, value]) => `${key}=${value}`),
+    User: 'root', // Run as root to avoid permission issues
     HostConfig: {
       PortBindings: {
         '18789/tcp': [{ HostPort: String(port) }],
