@@ -26,13 +26,19 @@ function AdminDebugInterface() {
   const testDiscord = useMutation(trpc.admin.testDiscord.mutationOptions())
 
   const [discordToken, setDiscordToken] = useState('')
+  const [anthropicKey, setAnthropicKey] = useState('')
+  const [openaiKey, setOpenaiKey] = useState('')
+  const [minimaxKey, setMinimaxKey] = useState('')
 
   const handleSaveEnv = () => {
-    updateEnv.mutate({
-      envVars: {
-        DISCORD_BOT_TOKEN: discordToken
-      }
-    })
+    const envVars: Record<string, string> = {}
+    
+    if (discordToken) envVars.DISCORD_BOT_TOKEN = discordToken
+    if (anthropicKey) envVars.ANTHROPIC_API_KEY = anthropicKey
+    if (openaiKey) envVars.OPENAI_API_KEY = openaiKey
+    if (minimaxKey) envVars.MINIMAX_API_KEY = minimaxKey
+    
+    updateEnv.mutate({ envVars })
   }
 
   const handleRestart = () => {
@@ -162,6 +168,8 @@ function AdminDebugInterface() {
             </label>
             <input
               type="password"
+              value={anthropicKey}
+              onChange={(e) => setAnthropicKey(e.target.value)}
               placeholder="sk-ant-api03-..."
               className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
             />
@@ -173,7 +181,22 @@ function AdminDebugInterface() {
             </label>
             <input
               type="password"
+              value={openaiKey}
+              onChange={(e) => setOpenaiKey(e.target.value)}
               placeholder="sk-proj-..."
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-xs text-lux-text-muted uppercase tracking-widest mb-2">
+              Minimax API Key
+            </label>
+            <input
+              type="password"
+              value={minimaxKey}
+              onChange={(e) => setMinimaxKey(e.target.value)}
+              placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."
               className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
             />
           </div>

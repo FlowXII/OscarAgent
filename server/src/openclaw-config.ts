@@ -78,6 +78,7 @@ export class OpenClawConfigService {
           where: { enabled: true },
           include: { skill: true },
         },
+        config: true,
       },
     });
 
@@ -90,6 +91,15 @@ export class OpenClawConfigService {
     // Create a comma-separated list of enabled skill slugs
     const enabledSkills = agent.skills.map(as => as.skill.slug).join(',');
     envVars['OPENCLAW_ENABLED_SKILLS'] = enabledSkills;
+
+    // Add AI API keys from config if they exist
+    if (agent.config?.envVars) {
+      const configVars = agent.config.envVars as Record<string, string>;
+      if (configVars.ANTHROPIC_API_KEY) envVars['ANTHROPIC_API_KEY'] = configVars.ANTHROPIC_API_KEY;
+      if (configVars.OPENAI_API_KEY) envVars['OPENAI_API_KEY'] = configVars.OPENAI_API_KEY;
+      if (configVars.MINIMAX_API_KEY) envVars['MINIMAX_API_KEY'] = configVars.MINIMAX_API_KEY;
+      if (configVars.DISCORD_BOT_TOKEN) envVars['DISCORD_BOT_TOKEN'] = configVars.DISCORD_BOT_TOKEN;
+    }
 
     return envVars;
   }
