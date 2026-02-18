@@ -101,6 +101,9 @@ export class OpenClawConfigService {
       if (configVars.OPENCLAW_MODEL) {
         envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL'] = configVars.OPENCLAW_MODEL;
         envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL_PRIMARY'] = configVars.OPENCLAW_MODEL;
+        // Also set these for per-agent overrides if supported
+        envVars['OPENCLAW_AGENT_MODEL'] = configVars.OPENCLAW_MODEL;
+        envVars['OPENCLAW_AGENT_MODEL_PRIMARY'] = configVars.OPENCLAW_MODEL;
       }
 
       // Auto-enable Minimax plugin if key is present

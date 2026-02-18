@@ -73,7 +73,7 @@ export async function createAgent(userId: string): Promise<string> {
         PortBindings: {
           '18789/tcp': [{ HostPort: String(port) }],
         },
-        Binds: [`oscaragent-openclaw-${agent.id}:/home/node/.openclaw`],
+        Binds: [`oscaragent-openclaw-${agent.id}:/root/.openclaw`],
         RestartPolicy: { Name: 'unless-stopped' },
         // Resource limits for multi-tenancy
         Memory: 2 * 1024 * 1024 * 1024, // 2GB
@@ -169,7 +169,7 @@ export async function startAgent(agentId: string): Promise<void> {
       PortBindings: {
         '18789/tcp': [{ HostPort: String(port) }],
       },
-      Binds: [`oscaragent-openclaw-${agentId}:/home/node/.openclaw`],
+      Binds: [`oscaragent-openclaw-${agentId}:/root/.openclaw`],
       RestartPolicy: { Name: 'unless-stopped' },
       // Resource limits for multi-tenancy
       Memory: 2 * 1024 * 1024 * 1024, // 2GB

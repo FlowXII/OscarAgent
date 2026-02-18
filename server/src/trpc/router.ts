@@ -175,14 +175,21 @@ export const adminRouter = createTRPCRouter({
       })
       if (!agent) throw new Error('No agent found')
 
+      const existing = await ctx.prisma.agentConfig.findUnique({
+        where: { agentId: agent.id }
+      })
+
+      const existingEnv = (existing?.envVars as Record<string, string>) || {}
+      const mergedEnv = { ...existingEnv, ...input.envVars }
+
       const config = await ctx.prisma.agentConfig.upsert({
         where: { agentId: agent.id },
         create: {
           agentId: agent.id,
-          envVars: input.envVars as any
+          envVars: mergedEnv as any
         },
         update: {
-          envVars: input.envVars as any
+          envVars: mergedEnv as any
         }
       })
 

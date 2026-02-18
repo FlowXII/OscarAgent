@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useQuery, useMutation } from '@tanstack/react-query'
 import { useTRPC } from '@/integrations/trpc/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { 
   Terminal, 
   RefreshCw, 
@@ -17,8 +17,7 @@ export const Route = createFileRoute('/dashboard/admin')({
 
 export function AdminDebugPage() {
   const trpc = useTRPC()
-  const { data: agent, isLoading: agentLoading, error: agentError } = useQuery(trpc.agents.get.queryOptions())
-  const { data: user } = useQuery(trpc.auth.me.queryOptions())
+  const { data: agent } = useQuery(trpc.agents.get.queryOptions())
   const { data: config } = useQuery(trpc.admin.getAgentConfig.queryOptions())
   const { data: logs } = useQuery(trpc.admin.getAgentLogs.queryOptions())
   
@@ -31,8 +30,19 @@ export function AdminDebugPage() {
   const [openaiKey, setOpenaiKey] = useState('')
   const [minimaxKey, setMinimaxKey] = useState('')
   const [aiModel, setAiModel] = useState('MiniMax-M2.5')
-  const [showDebug, setShowDebug] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
+
+  // Sync with current config when it loads
+  useEffect(() => {
+    if (config?.envVars) {
+      const vars = config.envVars as Record<string, string>
+      if (vars.DISCORD_BOT_TOKEN) setDiscordToken(vars.DISCORD_BOT_TOKEN)
+      if (vars.ANTHROPIC_API_KEY) setAnthropicKey(vars.ANTHROPIC_API_KEY)
+      if (vars.OPENAI_API_KEY) setOpenaiKey(vars.OPENAI_API_KEY)
+      if (vars.MINIMAX_API_KEY) setMinimaxKey(vars.MINIMAX_API_KEY)
+      if (vars.OPENCLAW_MODEL) setAiModel(vars.OPENCLAW_MODEL)
+    }
+  }, [config])
 
   const handleSaveEnv = () => {
     const envVars: Record<string, string> = {}
