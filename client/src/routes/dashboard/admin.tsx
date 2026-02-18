@@ -30,6 +30,7 @@ export function AdminDebugPage() {
   const [anthropicKey, setAnthropicKey] = useState('')
   const [openaiKey, setOpenaiKey] = useState('')
   const [minimaxKey, setMinimaxKey] = useState('')
+  const [aiModel, setAiModel] = useState('minimax/abab6.5s-chat')
   const [showDebug, setShowDebug] = useState(true)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
@@ -40,6 +41,7 @@ export function AdminDebugPage() {
     if (anthropicKey) envVars.ANTHROPIC_API_KEY = anthropicKey
     if (openaiKey) envVars.OPENAI_API_KEY = openaiKey
     if (minimaxKey) envVars.MINIMAX_API_KEY = minimaxKey
+    if (aiModel) envVars.OPENCLAW_MODEL = aiModel
     
     updateEnv.mutate({ envVars }, {
       onSuccess: () => {
