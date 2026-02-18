@@ -8,10 +8,11 @@ import type { TRPCRouter } from '@/integrations/trpc/router'
 import { TRPCProvider } from '@/integrations/trpc/react'
 
 function getUrl() {
+  const isDev = import.meta.env.DEV || process.env.NODE_ENV === 'development'
   const apiBase =
     typeof window !== 'undefined'
-      ? ((import.meta.env.VITE_API_URL as string) || 'http://localhost:4000')
-      : (process.env.VITE_API_URL as string) || 'http://localhost:4000'
+      ? ((import.meta.env.VITE_API_URL as string) || (isDev ? 'http://localhost:4000' : ''))
+      : (process.env.VITE_API_URL as string) || (isDev ? 'http://localhost:4000' : '')
   return `${apiBase}/api/trpc`
 }
 
