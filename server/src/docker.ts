@@ -50,6 +50,7 @@ export async function createAgent(userId: string): Promise<string> {
           d.modem.followProgress(stream, (err: Error | null) => (err ? rej(err) : res()))
         })
       })
+    })
     
     // Get enabled skills as environment variables
     const skillsEnv = await OpenClawConfigService.getSkillsEnvVars(agent.id);
