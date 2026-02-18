@@ -50,15 +50,23 @@ export async function createAgent(userId: string): Promise<string> {
           d.modem.followProgress(stream, (err: Error | null) => (err ? rej(err) : res()))
         })
       })
-    })
     
     // Get enabled skills as environment variables
     const skillsEnv = await OpenClawConfigService.getSkillsEnvVars(agent.id);
     
+    // Get user-configured environment variables (Discord token, AI model, API keys)
+    const agentConfig = await prisma.agentConfig.findUnique({
+      where: { agentId: agent.id }
+    });
+    const userEnvVars = (agentConfig?.envVars as Record<string, string>) || {};
+    
+    // Merge both: user config takes precedence over skills
+    const allEnvVars = { ...skillsEnv, ...userEnvVars };
+    
     const container = await d.createContainer({
       Image: IMAGE,
       name: `oscaragent-agent-${agent.id}`,
-      Env: Object.entries(skillsEnv).map(([key, value]) => `${key}=${value}`),
+      Env: Object.entries(allEnvVars).map(([key, value]) => `${key}=${value}`),
       HostConfig: {
         PortBindings: {
           '18789/tcp': [{ HostPort: String(port) }],
