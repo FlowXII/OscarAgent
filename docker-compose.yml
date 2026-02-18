@@ -22,7 +22,7 @@ services:
       context: ./server
       dockerfile: Dockerfile
     ports:
-      - "4000:4000"
+      - "4001:4000"
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/oscaragent
       PORT: 4000
