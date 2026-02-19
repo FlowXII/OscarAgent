@@ -30,6 +30,7 @@ services:
       - ./server/.env
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - oscaragent-configs:/openclaw-configs
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,3 +51,4 @@ networks:
 
 volumes:
   postgres_data:
+  oscaragent-configs:

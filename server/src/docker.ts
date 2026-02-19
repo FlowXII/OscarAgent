@@ -65,10 +65,10 @@ export async function createAgent(userId: string): Promise<string> {
     // Merge both: user config takes precedence over skills
     const allEnvVars = { ...skillsEnv, ...userEnvVars };
     
-    // Generate and write config file
+    // Generate config
     const config = await OpenClawConfigService.generateConfigForAgent(agent.id)
-    await OpenClawConfigService.writeConfigToVolume(agent.id, config)
-    const configPath = path.join(process.cwd(), '.openclaw-configs', `${agent.id}.json`)
+    const configJson = JSON.stringify(config);
+    const configBase64 = Buffer.from(configJson).toString('base64');
     
     const container = await d.createContainer({
       Image: IMAGE,
@@ -81,8 +81,6 @@ export async function createAgent(userId: string): Promise<string> {
         },
         Binds: [
           `oscaragent-openclaw-${agent.id}:/root/.openclaw`,
-          // Mount the generated config file to overwrite the default
-          `${configPath}:/root/.openclaw/openclaw.json`
         ],
         RestartPolicy: { Name: 'unless-stopped' },
         // Resource limits for multi-tenancy
@@ -106,6 +104,20 @@ export async function createAgent(userId: string): Promise<string> {
       },
     })
     await container.start()
+    
+    // Inject config file via exec to avoid host path issues
+    try {
+      const exec = await container.exec({
+        Cmd: ['sh', '-c', `echo "${configBase64}" | base64 -d > /root/.openclaw/openclaw.json`],
+        AttachStdout: true,
+        AttachStderr: true
+      });
+      await exec.start({});
+      console.log(`Config injected for agent ${agent.id}`);
+    } catch (e) {
+      console.error(`Failed to inject config for agent ${agent.id}:`, e);
+    }
+    
     await prisma.agent.update({
       where: { id: agent.id },
       data: { containerId: container.id, status: AgentStatus.running },
@@ -170,10 +182,10 @@ export async function startAgent(agentId: string): Promise<void> {
   // Join user config and skills env vars
   const allEnvVars = { ...skillsEnv, ...userEnvVars };
 
-  // Generate and write config file
+  // Generate config
   const config = await OpenClawConfigService.generateConfigForAgent(agentId)
-  await OpenClawConfigService.writeConfigToVolume(agentId, config)
-  const configPath = path.join(process.cwd(), '.openclaw-configs', `${agentId}.json`)
+  const configJson = JSON.stringify(config);
+  const configBase64 = Buffer.from(configJson).toString('base64');
   
   const container = await d.createContainer({
     Image: IMAGE,
@@ -186,8 +198,6 @@ export async function startAgent(agentId: string): Promise<void> {
       },
       Binds: [
         `oscaragent-openclaw-${agentId}:/root/.openclaw`,
-        // Mount the generated config file to overwrite the default
-        `${configPath}:/root/.openclaw/openclaw.json`
       ],
       RestartPolicy: { Name: 'unless-stopped' },
       // Resource limits for multi-tenancy
@@ -211,6 +221,20 @@ export async function startAgent(agentId: string): Promise<void> {
     },
   })
   await container.start()
+  
+  // Inject config file via exec to avoid host path issues
+  try {
+    const exec = await container.exec({
+      Cmd: ['sh', '-c', `echo "${configBase64}" | base64 -d > /root/.openclaw/openclaw.json`],
+      AttachStdout: true,
+      AttachStderr: true
+    });
+    await exec.start({});
+    console.log(`Config injected for agent ${agentId}`);
+  } catch (e) {
+    console.error(`Failed to inject config for agent ${agentId}:`, e);
+  }
+  
   await prisma.agent.update({
     where: { id: agentId },
     data: { containerId: container.id, status: AgentStatus.running, errorMessage: null },

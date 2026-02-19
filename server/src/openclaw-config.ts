@@ -68,10 +68,12 @@ export class OpenClawConfigService {
    * This assumes the volume is mounted at a predictable path
    */
   static async writeConfigToVolume(agentId: string, config: OpenClawConfig): Promise<void> {
-    // Docker volumes are typically at /var/lib/docker/volumes/
-    // But we'll write to a temp location that can be mounted
-    const configDir = path.join(process.cwd(), '.openclaw-configs');
-    await fs.mkdir(configDir, { recursive: true });
+    const configDir = '/openclaw-configs';
+    try {
+      await fs.mkdir(configDir, { recursive: true });
+    } catch (e) {
+      // Ignore if it already exists or if we don't have permissions to create (though it should be a volume)
+    }
     
     const configPath = path.join(configDir, `${agentId}.json`);
     await fs.writeFile(configPath, JSON.stringify(config, null, 2));
@@ -110,8 +112,14 @@ export class OpenClawConfigService {
 
       // Mapping for OpenClaw specific model selection
       if (configVars.OPENCLAW_MODEL) {
+        // Standard mapping
         envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL'] = configVars.OPENCLAW_MODEL;
         envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL_PRIMARY'] = configVars.OPENCLAW_MODEL;
+        
+        // Nested mapping with double underscores (standard for many config loaders)
+        envVars['OPENCLAW__AGENTS__DEFAULTS__MODEL'] = configVars.OPENCLAW_MODEL;
+        envVars['OPENCLAW__AGENT__MODEL'] = configVars.OPENCLAW_MODEL;
+        
         // Also set these for per-agent overrides if supported
         envVars['OPENCLAW_AGENT_MODEL'] = configVars.OPENCLAW_MODEL;
         envVars['OPENCLAW_AGENT_MODEL_PRIMARY'] = configVars.OPENCLAW_MODEL;
@@ -120,6 +128,7 @@ export class OpenClawConfigService {
       // Auto-enable Minimax plugin if key is present
       if (configVars.MINIMAX_API_KEY) {
         envVars['OPENCLAW_PLUGINS_ENTRIES_MINIMAX_ENABLED'] = 'true';
+        envVars['OPENCLAW__PLUGINS__ENTRIES__MINIMAX__ENABLED'] = 'true';
       }
     }
 
