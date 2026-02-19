@@ -10,7 +10,10 @@ import path from 'path';
 interface OpenClawConfig {
   agents?: {
     defaults?: {
-      model?: string;
+      model?: string | {
+        primary?: string;
+        [key: string]: any;
+      };
     };
   };
   skills?: {
@@ -31,6 +34,7 @@ export class OpenClawConfigService {
     const agent = await prisma.agent.findUnique({
       where: { id: agentId },
       include: {
+        config: true,
         skills: {
           include: {
             skill: true,
@@ -43,11 +47,15 @@ export class OpenClawConfigService {
       throw new Error('Agent not found');
     }
 
+    const configVars = (agent.config?.envVars as Record<string, string>) || {};
+    const modelName = configVars.OPENCLAW_MODEL || "MiniMax-M2.5";
+
     const config: OpenClawConfig = {
       agents: {
         defaults: {
-          // Use environment variable substitution so we can control this via env vars
-          model: "${OPENCLAW_MODEL}",
+          model: {
+            primary: modelName,
+          },
         },
       },
       skills: {
