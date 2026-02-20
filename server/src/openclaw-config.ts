@@ -37,6 +37,15 @@ interface OpenClawConfig {
       config?: Record<string, any>;
     }>;
   };
+  channels?: {
+    discord?: {
+      dm?: {
+        policy: string;
+        allowFrom?: string[];
+      };
+      groupPolicy?: string;
+    };
+  };
   env?: Record<string, string>;
 }
 
@@ -65,6 +74,13 @@ export class OpenClawConfigService {
     // Ensure the default fallback includes the provider prefix and legacy names are migrated
     const modelName = addProviderPrefix(configVars.OPENCLAW_MODEL);
 
+    const discordUserId = configVars.DISCORD_USER_ID;
+    
+    // Default to open if no ID is provided, but use strict allowlist if provided
+    const dmPolicy = discordUserId ? "allowlist" : "open";
+    const groupPolicy = discordUserId ? "allowlist" : "open";
+    const allowFrom = discordUserId ? [discordUserId] : undefined;
+
     const config: OpenClawConfig = {
       agents: {
         defaults: {
@@ -81,6 +97,15 @@ export class OpenClawConfigService {
           };
           return acc;
         }, {} as Record<string, any>),
+      },
+      channels: {
+        discord: {
+          dm: {
+            policy: dmPolicy,
+            ...(allowFrom && { allowFrom })
+          },
+          groupPolicy: groupPolicy,
+        }
       },
       env: {},
     };

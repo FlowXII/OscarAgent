@@ -26,6 +26,7 @@ export function AdminDebugPage() {
   const testDiscord = useMutation(trpc.admin.testDiscord.mutationOptions())
 
   const [discordToken, setDiscordToken] = useState('')
+  const [discordUserId, setDiscordUserId] = useState('')
   const [anthropicKey, setAnthropicKey] = useState('')
   const [openaiKey, setOpenaiKey] = useState('')
   const [minimaxKey, setMinimaxKey] = useState('')
@@ -37,6 +38,7 @@ export function AdminDebugPage() {
     if (config?.envVars) {
       const vars = config.envVars as Record<string, string>
       if (vars.DISCORD_BOT_TOKEN) setDiscordToken(vars.DISCORD_BOT_TOKEN)
+      if (vars.DISCORD_USER_ID) setDiscordUserId(vars.DISCORD_USER_ID)
       if (vars.ANTHROPIC_API_KEY) setAnthropicKey(vars.ANTHROPIC_API_KEY)
       if (vars.OPENAI_API_KEY) setOpenaiKey(vars.OPENAI_API_KEY)
       if (vars.MINIMAX_API_KEY) setMinimaxKey(vars.MINIMAX_API_KEY)
@@ -48,6 +50,7 @@ export function AdminDebugPage() {
     const envVars: Record<string, string> = {}
     
     if (discordToken) envVars.DISCORD_BOT_TOKEN = discordToken
+    if (discordUserId) envVars.DISCORD_USER_ID = discordUserId
     if (anthropicKey) envVars.ANTHROPIC_API_KEY = anthropicKey
     if (openaiKey) envVars.OPENAI_API_KEY = openaiKey
     if (minimaxKey) envVars.MINIMAX_API_KEY = minimaxKey
@@ -144,6 +147,22 @@ export function AdminDebugPage() {
               placeholder="MTIzNDU2Nzg5MDEyMzQ1Njc4OQ.GaBcDe.FgHiJkLmNoPqRsTuVwXyZ..."
               className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
             />
+          </div>
+          <div>
+            <label className="block text-xs text-lux-text-muted uppercase tracking-widest mb-2">
+              Your Discord User ID
+            </label>
+            <input
+              type="text"
+              value={discordUserId}
+              onChange={(e) => setDiscordUserId(e.target.value)}
+              placeholder="123456789012345678"
+              className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
+            />
+            <p className="text-xs text-lux-text-muted mt-2">
+              Required for security. The agent will only respond to messages from this Discord user. 
+              (Right-click your profile in Discord -&gt; Copy User ID)
+            </p>
           </div>
 
           <div className="flex gap-3">
