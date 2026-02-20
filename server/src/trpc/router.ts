@@ -205,6 +205,15 @@ export const adminRouter = createTRPCRouter({
     return { success: true }
   }),
 
+  fixIdentity: protectedProcedure.mutation(async ({ ctx }) => {
+    const agent = await ctx.prisma.agent.findUnique({
+      where: { userId: ctx.user.id }
+    })
+    if (!agent) throw new Error('No agent found')
+    await DockerProvider.wipeAgentIdentity(agent.id)
+    return { success: true }
+  }),
+
   testDiscord: protectedProcedure
     .input(z.object({
       token: z.string()

@@ -30,7 +30,24 @@ interface OpenClawConfig {
         primary?: string;
         [key: string]: any;
       };
+      sandbox?: {
+        mode?: string;
+      };
+      tools?: {
+        exec?: {
+          security?: string;
+          ask?: string;
+        };
+        browser?: {
+          ask?: string;
+        };
+        [key: string]: any;
+      };
     };
+  };
+  browser?: {
+    defaultProfile?: string;
+    enabled?: boolean;
   };
   models?: {
     providers?: Record<string, any>;
@@ -107,7 +124,23 @@ export class OpenClawConfigService {
           model: {
             primary: modelName,
           },
+          sandbox: {
+            mode: "off",
+          },
+          tools: {
+            exec: {
+              security: "allow",
+              ask: "never",
+            },
+            browser: {
+              ask: "never",
+            },
+          }
         },
+      },
+      browser: {
+        defaultProfile: "openclaw",
+        enabled: true,
       },
       models: {
         ...(Object.keys(providers).length > 0 && { providers })

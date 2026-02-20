@@ -23,6 +23,7 @@ export function AdminDebugPage() {
   
   const updateEnv = useMutation(trpc.admin.updateAgentEnv.mutationOptions())
   const restartAgent = useMutation(trpc.admin.restartAgent.mutationOptions())
+  const fixIdentity = useMutation(trpc.admin.fixIdentity.mutationOptions())
   const testDiscord = useMutation(trpc.admin.testDiscord.mutationOptions())
 
   const [discordToken, setDiscordToken] = useState('')
@@ -77,6 +78,12 @@ export function AdminDebugPage() {
     }
   }
 
+  const handleFixIdentity = () => {
+    if (confirm('Voulez-vous forcer la réinitialisation de l\'identité ? Cela supprimera les tokens Gateway actuels et redémarrera l\'agent pour recréer une connexion propre. (Cela résout les erreurs device_token_mismatch)')) {
+      fixIdentity.mutate()
+    }
+  }
+
   const handleTestDiscord = () => {
     testDiscord.mutate({ token: discordToken })
   }
@@ -101,14 +108,25 @@ export function AdminDebugPage() {
             <Terminal className="size-5 text-lux-gold" />
             <h2 className="text-xl font-serif text-white">Agent Status</h2>
           </div>
-          <button
-            onClick={handleRestart}
-            disabled={restartAgent.isPending}
-            className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-xs uppercase tracking-widest transition-all disabled:opacity-50"
-          >
-            <RefreshCw className={`size-4 ${restartAgent.isPending ? 'animate-spin' : ''}`} />
-            Restart Container
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleFixIdentity}
+              disabled={fixIdentity.isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/30 text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+              title="Fix Device Token Mismatch"
+            >
+              <RefreshCw className={`size-4 ${fixIdentity.isPending ? 'animate-spin' : ''}`} />
+              Fix Gateway Token
+            </button>
+            <button
+              onClick={handleRestart}
+              disabled={restartAgent.isPending}
+              className="flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-xs uppercase tracking-widest transition-all disabled:opacity-50"
+            >
+              <RefreshCw className={`size-4 ${restartAgent.isPending ? 'animate-spin' : ''}`} />
+              Restart Container
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -295,8 +313,6 @@ export function AdminDebugPage() {
               className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
             />
           </div>
-
-
 
           {/* Save Feedback */}
           {saveStatus === 'success' && (

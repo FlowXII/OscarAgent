@@ -284,3 +284,26 @@ export async function getContainerLogs(agentId: string): Promise<string> {
     return `Error fetching logs: ${(e as Error).message}`
   }
 }
+
+export async function wipeAgentIdentity(agentId: string): Promise<void> {
+  const agent = await prisma.agent.findUnique({ where: { id: agentId } })
+  if (!agent?.containerId) throw new Error('Agent not running')
+  const d = getDocker()
+  try {
+    const container = d.getContainer(agent.containerId)
+    const exec = await container.exec({
+      Cmd: ['sh', '-c', 'rm -rf /root/.openclaw/identity/* && rm -f /root/.openclaw/devices/paired.json && rm -f /root/.openclaw/openclaw.json.bak'],
+      AttachStdout: true,
+      AttachStderr: true
+    })
+    await exec.start({})
+    console.log(`Wiped identity for agent ${agentId}`)
+    
+    // Restart to trigger identity recreation
+    await container.stop()
+    await container.start()
+  } catch (e) {
+    console.error(`Failed to wipe identity for agent ${agentId}:`, e)
+    throw e
+  }
+}
