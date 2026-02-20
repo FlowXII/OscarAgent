@@ -92,14 +92,22 @@ export class OpenClawConfigService {
       providers['moonshot'] = {
         baseUrl: "https://api.moonshot.cn/v1",
         apiKey: configVars.MOONSHOT_API_KEY,
-        models: ["moonshot/moonshot-v1-8k", "moonshot/moonshot-v1-32k", "moonshot/moonshot-v1-128k"]
+        models: [
+          { id: "moonshot-v1-8k", name: "Kimi K2 8K" },
+          { id: "moonshot-v1-32k", name: "Kimi K2 32K" },
+          { id: "moonshot-v1-128k", name: "Kimi K2 128K" }
+        ]
       };
     }
     if (configVars.NVIDIA_API_KEY) {
       providers['nvidia'] = {
         baseUrl: "https://integrate.api.nvidia.com/v1",
         apiKey: configVars.NVIDIA_API_KEY,
-        models: ["nvidia/llama-3.1-nemotron-70b-instruct", "nvidia/meta/llama-3.1-70b-instruct", "nvidia/meta/llama-3.1-405b-instruct"]
+        models: [
+          { id: "llama-3.1-nemotron-70b-instruct", name: "Llama 3.1 Nemotron 70B" },
+          { id: "meta/llama-3.1-70b-instruct", name: "Llama 3.1 70B" },
+          { id: "meta/llama-3.1-405b-instruct", name: "Llama 3.1 405B" }
+        ]
       };
     }
 
