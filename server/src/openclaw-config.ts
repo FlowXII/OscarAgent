@@ -13,6 +13,8 @@ function addProviderPrefix(modelStr: string | undefined): string {
   if (lower.includes('minimax') || lower.includes('m2.')) return `minimax/${modelStr}`;
   if (lower.includes('claude')) return `anthropic/${modelStr}`;
   if (lower.includes('gpt')) return `openai/${modelStr}`;
+  if (lower.includes('moonshot') || lower.includes('kimi')) return `moonshot/${modelStr}`;
+  if (lower.includes('llama') || lower.includes('nemotron') || lower.includes('nvidia')) return `nvidia/${modelStr}`;
   
   return `anthropic/${modelStr}`; // default fallback
 }
@@ -30,6 +32,9 @@ interface OpenClawConfig {
         [key: string]: any;
       };
     };
+  };
+  models?: {
+    providers?: Record<string, any>;
   };
   skills?: {
     entries?: Record<string, {
@@ -81,6 +86,23 @@ export class OpenClawConfigService {
     const groupPolicy = discordUserId ? "allowlist" : "open";
     const allowFrom = discordUserId ? [discordUserId] : undefined;
 
+    // Configure custom providers if keys exist
+    const providers: Record<string, any> = {};
+    if (configVars.MOONSHOT_API_KEY) {
+      providers['moonshot'] = {
+        api: "openai",
+        baseURL: "https://api.moonshot.cn/v1",
+        apiKey: configVars.MOONSHOT_API_KEY
+      };
+    }
+    if (configVars.NVIDIA_API_KEY) {
+      providers['nvidia'] = {
+        api: "openai",
+        baseURL: "https://integrate.api.nvidia.com/v1",
+        apiKey: configVars.NVIDIA_API_KEY
+      };
+    }
+
     const config: OpenClawConfig = {
       agents: {
         defaults: {
@@ -88,6 +110,9 @@ export class OpenClawConfigService {
             primary: modelName,
           },
         },
+      },
+      models: {
+        ...(Object.keys(providers).length > 0 && { providers })
       },
       skills: {
         entries: agent.skills.reduce((acc, agentSkill) => {
