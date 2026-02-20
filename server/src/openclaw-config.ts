@@ -143,7 +143,7 @@ export class OpenClawConfigService {
         noSandbox: true,
         executablePath: "/usr/bin/chromium-browser",
         profiles: {
-          openclaw: { cdpPort: 18800 }
+          openclaw: { cdpPort: 18800, color: "#FF4500" }
         }
       },
       models: {
