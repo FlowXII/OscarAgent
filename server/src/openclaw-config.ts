@@ -40,9 +40,6 @@ interface OpenClawConfig {
       security?: string;
       ask?: string;
     };
-    browser?: {
-      ask?: string;
-    };
     [key: string]: any;
   };
   browser?: {
@@ -131,11 +128,8 @@ export class OpenClawConfigService {
       },
       tools: {
         exec: {
-          security: "allow",
-          ask: "never",
-        },
-        browser: {
-          ask: "never",
+          security: "full",
+          ask: "off",
         },
       },
       browser: {
