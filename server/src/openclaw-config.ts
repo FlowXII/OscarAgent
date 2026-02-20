@@ -3,6 +3,21 @@ import fs from 'fs/promises';
 import path from 'path';
 
 /**
+ * Helper to ensure legacy model names get their provider prefix
+ */
+function addProviderPrefix(modelStr: string | undefined): string {
+  if (!modelStr) return "minimax/MiniMax-M2.5";
+  if (modelStr.includes('/')) return modelStr;
+  
+  const lower = modelStr.toLowerCase();
+  if (lower.includes('minimax') || lower.includes('m2.')) return `minimax/${modelStr}`;
+  if (lower.includes('claude')) return `anthropic/${modelStr}`;
+  if (lower.includes('gpt')) return `openai/${modelStr}`;
+  
+  return `anthropic/${modelStr}`; // default fallback
+}
+
+/**
  * OpenClaw Configuration Manager
  * Generates openclaw.json configuration files for each agent based on their enabled skills
  */
@@ -47,8 +62,8 @@ export class OpenClawConfigService {
     }
 
     const configVars = (agent.config?.envVars as Record<string, string>) || {};
-    // Ensure the default fallback includes the provider prefix
-    const modelName = configVars.OPENCLAW_MODEL || "minimax/MiniMax-M2.5";
+    // Ensure the default fallback includes the provider prefix and legacy names are migrated
+    const modelName = addProviderPrefix(configVars.OPENCLAW_MODEL);
 
     const config: OpenClawConfig = {
       agents: {
@@ -122,17 +137,19 @@ export class OpenClawConfigService {
 
       // Mapping for OpenClaw specific model selection
       if (configVars.OPENCLAW_MODEL) {
+        const normalizedModel = addProviderPrefix(configVars.OPENCLAW_MODEL);
+        
         // Standard mapping
-        envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL'] = configVars.OPENCLAW_MODEL;
-        envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL_PRIMARY'] = configVars.OPENCLAW_MODEL;
+        envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL'] = normalizedModel;
+        envVars['OPENCLAW_AGENTS_DEFAULTS_MODEL_PRIMARY'] = normalizedModel;
         
         // Nested mapping with double underscores (standard for many config loaders)
-        envVars['OPENCLAW__AGENTS__DEFAULTS__MODEL'] = configVars.OPENCLAW_MODEL;
-        envVars['OPENCLAW__AGENT__MODEL'] = configVars.OPENCLAW_MODEL;
+        envVars['OPENCLAW__AGENTS__DEFAULTS__MODEL'] = normalizedModel;
+        envVars['OPENCLAW__AGENT__MODEL'] = normalizedModel;
         
         // Also set these for per-agent overrides if supported
-        envVars['OPENCLAW_AGENT_MODEL'] = configVars.OPENCLAW_MODEL;
-        envVars['OPENCLAW_AGENT_MODEL_PRIMARY'] = configVars.OPENCLAW_MODEL;
+        envVars['OPENCLAW_AGENT_MODEL'] = normalizedModel;
+        envVars['OPENCLAW_AGENT_MODEL_PRIMARY'] = normalizedModel;
       }
 
       // Auto-enable Minimax plugin if key is present
