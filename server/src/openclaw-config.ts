@@ -90,16 +90,16 @@ export class OpenClawConfigService {
     const providers: Record<string, any> = {};
     if (configVars.MOONSHOT_API_KEY) {
       providers['moonshot'] = {
-        api: "openai",
-        baseURL: "https://api.moonshot.cn/v1",
-        apiKey: configVars.MOONSHOT_API_KEY
+        baseUrl: "https://api.moonshot.cn/v1",
+        apiKey: configVars.MOONSHOT_API_KEY,
+        models: ["moonshot/moonshot-v1-8k", "moonshot/moonshot-v1-32k", "moonshot/moonshot-v1-128k"]
       };
     }
     if (configVars.NVIDIA_API_KEY) {
       providers['nvidia'] = {
-        api: "openai",
-        baseURL: "https://integrate.api.nvidia.com/v1",
-        apiKey: configVars.NVIDIA_API_KEY
+        baseUrl: "https://integrate.api.nvidia.com/v1",
+        apiKey: configVars.NVIDIA_API_KEY,
+        models: ["nvidia/llama-3.1-nemotron-70b-instruct", "nvidia/meta/llama-3.1-70b-instruct", "nvidia/meta/llama-3.1-405b-instruct"]
       };
     }
 
