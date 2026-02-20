@@ -33,17 +33,17 @@ interface OpenClawConfig {
       sandbox?: {
         mode?: string;
       };
-      tools?: {
-        exec?: {
-          security?: string;
-          ask?: string;
-        };
-        browser?: {
-          ask?: string;
-        };
-        [key: string]: any;
-      };
     };
+  };
+  tools?: {
+    exec?: {
+      security?: string;
+      ask?: string;
+    };
+    browser?: {
+      ask?: string;
+    };
+    [key: string]: any;
   };
   browser?: {
     defaultProfile?: string;
@@ -127,15 +127,15 @@ export class OpenClawConfigService {
           sandbox: {
             mode: "off",
           },
-          tools: {
-            exec: {
-              security: "allow",
-              ask: "never",
-            },
-            browser: {
-              ask: "never",
-            },
-          }
+        },
+      },
+      tools: {
+        exec: {
+          security: "allow",
+          ask: "never",
+        },
+        browser: {
+          ask: "never",
         },
       },
       browser: {
