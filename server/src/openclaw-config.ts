@@ -17,8 +17,7 @@ interface OpenClawConfig {
     };
   };
   skills?: {
-    entries?: Array<{
-      name: string;
+    entries?: Record<string, {
       enabled: boolean;
       config?: Record<string, any>;
     }>;
@@ -59,11 +58,13 @@ export class OpenClawConfigService {
         },
       },
       skills: {
-        entries: agent.skills.map((agentSkill) => ({
-          name: agentSkill.skill.slug,
-          enabled: agentSkill.enabled,
-          config: {},
-        })),
+        entries: agent.skills.reduce((acc, agentSkill) => {
+          acc[agentSkill.skill.slug] = {
+            enabled: agentSkill.enabled,
+            config: {},
+          };
+          return acc;
+        }, {} as Record<string, any>),
       },
       env: {},
     };
