@@ -47,7 +47,8 @@ export class OpenClawConfigService {
     }
 
     const configVars = (agent.config?.envVars as Record<string, string>) || {};
-    const modelName = configVars.OPENCLAW_MODEL || "MiniMax-M2.5";
+    // Ensure the default fallback includes the provider prefix
+    const modelName = configVars.OPENCLAW_MODEL || "minimax/MiniMax-M2.5";
 
     const config: OpenClawConfig = {
       agents: {

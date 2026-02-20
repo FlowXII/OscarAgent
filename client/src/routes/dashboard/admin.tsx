@@ -197,9 +197,9 @@ export function AdminDebugPage() {
               className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
             >
               <optgroup label="Minimax (Économique)">
-                <option value="MiniMax-M2.5">MiniMax M2.5 (Recommandé)</option>
-                <option value="MiniMax-M2.5-highspeed">MiniMax M2.5 High Speed</option>
-                <option value="MiniMax-M2.1">MiniMax M2.1</option>
+                <option value="minimax/MiniMax-M2.5">MiniMax M2.5 (Recommandé)</option>
+                <option value="minimax/MiniMax-M2.5-highspeed">MiniMax M2.5 High Speed</option>
+                <option value="minimax/MiniMax-M2.1">MiniMax M2.1</option>
               </optgroup>
               <optgroup label="Anthropic (Claude)">
                 <option value="anthropic/claude-3-5-sonnet-20241022">Claude 3.5 Sonnet</option>
