@@ -31,7 +31,6 @@ export function AdminDebugPage() {
   const [openaiKey, setOpenaiKey] = useState('')
   const [minimaxKey, setMinimaxKey] = useState('')
   const [moonshotKey, setMoonshotKey] = useState('')
-  const [nvidiaKey, setNvidiaKey] = useState('')
   const [aiModel, setAiModel] = useState('MiniMax-M2.5')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'success' | 'error'>('idle')
 
@@ -45,7 +44,6 @@ export function AdminDebugPage() {
       if (vars.OPENAI_API_KEY) setOpenaiKey(vars.OPENAI_API_KEY)
       if (vars.MINIMAX_API_KEY) setMinimaxKey(vars.MINIMAX_API_KEY)
       if (vars.MOONSHOT_API_KEY) setMoonshotKey(vars.MOONSHOT_API_KEY)
-      if (vars.NVIDIA_API_KEY) setNvidiaKey(vars.NVIDIA_API_KEY)
       if (vars.OPENCLAW_MODEL) setAiModel(vars.OPENCLAW_MODEL)
     }
   }, [config])
@@ -59,7 +57,6 @@ export function AdminDebugPage() {
     if (openaiKey) envVars.OPENAI_API_KEY = openaiKey
     if (minimaxKey) envVars.MINIMAX_API_KEY = minimaxKey
     if (moonshotKey) envVars.MOONSHOT_API_KEY = moonshotKey
-    if (nvidiaKey) envVars.NVIDIA_API_KEY = nvidiaKey
     if (aiModel) envVars.OPENCLAW_MODEL = aiModel
     
     updateEnv.mutate({ envVars }, {
@@ -241,11 +238,6 @@ export function AdminDebugPage() {
                 <option value="moonshot/moonshot-v1-32k">Kimi K2 32K</option>
                 <option value="moonshot/moonshot-v1-128k">Kimi K2 128K</option>
               </optgroup>
-              <optgroup label="NVIDIA (NIM/Build)">
-                <option value="nvidia/llama-3.1-nemotron-70b-instruct">Llama 3.1 Nemotron 70B</option>
-                <option value="nvidia/meta/llama-3.1-70b-instruct">Llama 3.1 70B</option>
-                <option value="nvidia/meta/llama-3.1-405b-instruct">Llama 3.1 405B</option>
-              </optgroup>
             </select>
             <p className="text-xs text-lux-text-muted mt-2">
               Minimax recommandé pour économiser. Claude 3.5 Sonnet pour la qualité.
@@ -304,18 +296,7 @@ export function AdminDebugPage() {
             />
           </div>
 
-          <div>
-            <label className="block text-xs text-lux-text-muted uppercase tracking-widest mb-2">
-              NVIDIA API Key (Build)
-            </label>
-            <input
-              type="password"
-              value={nvidiaKey}
-              onChange={(e) => setNvidiaKey(e.target.value)}
-              placeholder="nvapi-..."
-              className="w-full px-4 py-3 bg-white/5 border border-white/10 text-white font-mono text-sm focus:border-lux-gold/50 focus:outline-none transition-colors"
-            />
-          </div>
+
 
           {/* Save Feedback */}
           {saveStatus === 'success' && (
@@ -345,7 +326,7 @@ export function AdminDebugPage() {
         </div>
 
         <div className="space-y-3">
-          {config?.envVars && Object.entries(config.envVars as Record<string, string>).map(([key, value]) => (
+          {config?.envVars && Object.entries(config?.envVars as Record<string, string>).map(([key, value]) => (
             <div key={key} className="flex gap-3">
               <input
                 type="text"

@@ -14,7 +14,6 @@ function addProviderPrefix(modelStr: string | undefined): string {
   if (lower.includes('claude')) return `anthropic/${modelStr}`;
   if (lower.includes('gpt')) return `openai/${modelStr}`;
   if (lower.includes('moonshot') || lower.includes('kimi')) return `moonshot/${modelStr}`;
-  if (lower.includes('llama') || lower.includes('nemotron') || lower.includes('nvidia')) return `nvidia/${modelStr}`;
   
   return `anthropic/${modelStr}`; // default fallback
 }
@@ -90,6 +89,7 @@ export class OpenClawConfigService {
     const providers: Record<string, any> = {};
     if (configVars.MOONSHOT_API_KEY) {
       providers['moonshot'] = {
+        api: "openai-completions",
         baseUrl: "https://api.moonshot.cn/v1",
         apiKey: configVars.MOONSHOT_API_KEY,
         models: [
@@ -99,17 +99,7 @@ export class OpenClawConfigService {
         ]
       };
     }
-    if (configVars.NVIDIA_API_KEY) {
-      providers['nvidia'] = {
-        baseUrl: "https://integrate.api.nvidia.com/v1",
-        apiKey: configVars.NVIDIA_API_KEY,
-        models: [
-          { id: "llama-3.1-nemotron-70b-instruct", name: "Llama 3.1 Nemotron 70B" },
-          { id: "meta/llama-3.1-70b-instruct", name: "Llama 3.1 70B" },
-          { id: "meta/llama-3.1-405b-instruct", name: "Llama 3.1 405B" }
-        ]
-      };
-    }
+
 
     const config: OpenClawConfig = {
       agents: {
