@@ -225,7 +225,7 @@ export async function startAgent(agentId: string): Promise<void> {
   // Inject config file via exec to avoid host path issues
   try {
     const exec = await container.exec({
-      Cmd: ['sh', '-c', `echo "${configBase64}" | base64 -d > /root/.openclaw/openclaw.json`],
+      Cmd: ['sh', '-c', `echo "${configBase64}" | base64 -d > /root/.openclaw/openclaw.json && apk add --no-cache chromium`],
       AttachStdout: true,
       AttachStderr: true
     });

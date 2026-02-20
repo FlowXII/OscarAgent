@@ -45,6 +45,10 @@ interface OpenClawConfig {
   browser?: {
     defaultProfile?: string;
     enabled?: boolean;
+    headless?: boolean;
+    noSandbox?: boolean;
+    executablePath?: string;
+    profiles?: Record<string, any>;
   };
   models?: {
     providers?: Record<string, any>;
@@ -135,6 +139,12 @@ export class OpenClawConfigService {
       browser: {
         defaultProfile: "openclaw",
         enabled: true,
+        headless: true,
+        noSandbox: true,
+        executablePath: "/usr/bin/chromium-browser",
+        profiles: {
+          openclaw: { cdpPort: 18800 }
+        }
       },
       models: {
         ...(Object.keys(providers).length > 0 && { providers })

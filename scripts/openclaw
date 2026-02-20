@@ -1,0 +1,19 @@
+#!/bin/bash
+# OpenClaw Host Wrapper for OscarAgent
+# Routes openclaw commands to the running Docker container transparently
+
+AGENT_CONTAINER_NAME="oscaragent-agent"
+
+# Check if container is running
+if ! docker ps --format "{{.Names}}" | grep -q "^${AGENT_CONTAINER_NAME}$"; then
+  echo "Error: The OpenClaw agent container '${AGENT_CONTAINER_NAME}' is not running."
+  echo "Please start the agent from the OscarAgent dashboard first."
+  exit 1
+fi
+
+# Pass all arguments to the openclaw binary inside the container Let's use -it only if we are in a tty
+if [ -t 1 ]; then
+  exec docker exec -it "${AGENT_CONTAINER_NAME}" openclaw "$@"
+else
+  exec docker exec "${AGENT_CONTAINER_NAME}" openclaw "$@"
+fi
