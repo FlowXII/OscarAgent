@@ -141,10 +141,7 @@ export class OpenClawConfigService {
         enabled: true,
         headless: true,
         noSandbox: true,
-        executablePath: "/usr/bin/chromium-browser",
-        profiles: {
-          openclaw: { cdpPort: 18800, color: "#FF4500" }
-        }
+        executablePath: "/usr/bin/chromium-browser"
       },
       models: {
         ...(Object.keys(providers).length > 0 && { providers })
